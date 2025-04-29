@@ -1,0 +1,4 @@
+Name,SamAccountName,Password,OU,Department,Title
+John Doe,jdoe,P@ssw0rd123,"OU=Users,DC=yourdomain,DC=com",IT Department,Systems Engineer
+Jane Smith,jsmith,P@ssJane123,"OU=Users,DC=yourdomain,DC=com",Finance,Accountant
+Robert Brown,rbrown,P@ssRobert123,"OU=HR,DC=yourdomain,DC=com",HR Department,HR Manager
