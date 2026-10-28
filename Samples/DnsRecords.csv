@@ -1,0 +1,6 @@
+ZoneName,Name,Type,Data,Preference,TTL
+yourdomain.com,web01,A,10.0.10.21,,3600
+yourdomain.com,intranet,CNAME,web01.yourdomain.com,,
+yourdomain.com,@,MX,mail.yourdomain.com,10,
+yourdomain.com,_dmarc,TXT,v=DMARC1; p=reject; rua=mailto:dmarc@yourdomain.com,,
+10.0.10.in-addr.arpa,21,PTR,web01.yourdomain.com,,

@@ -1,0 +1,4 @@
+Name,GivenName,Surname,SamAccountName,Password,OU,Department,Title,EmailAddress,Manager,Groups
+John Doe,John,Doe,jdoe,,"OU=Users,OU=Corp,DC=yourdomain,DC=com",IT,Systems Engineer,john.doe@yourdomain.com,,IT Staff;VPN Users
+Jane Smith,Jane,Smith,jsmith,,"OU=Users,OU=Corp,DC=yourdomain,DC=com",Finance,Accountant,jane.smith@yourdomain.com,jdoe,Finance
+Robert Brown,Robert,Brown,rbrown,,"OU=HR,OU=Corp,DC=yourdomain,DC=com",HR,HR Manager,robert.brown@yourdomain.com,,

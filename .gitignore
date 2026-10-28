@@ -1,4 +1,8 @@
-﻿Logs/
+# Toolkit output (reports, backups, logs) if pointed inside the repo
+ADDnsToolkit_Output/
+Logs/
 Backups/
+testResults.xml
 *.bak
 *.tmp
+dist/

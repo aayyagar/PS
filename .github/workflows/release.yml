@@ -1,0 +1,27 @@
+name: Release
+
+# Push a tag like v2.0.0 to publish a ready-to-run ZIP on the Releases page.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build ZIP
+        shell: pwsh
+        run: |
+          $v = '${{ github.ref_name }}'
+          $out = "ADDnsToolkit-$v"
+          New-Item -ItemType Directory dist/$out -Force | Out-Null
+          Copy-Item ADDnsToolkit, Samples, AD_Tools, DNS_Tools, Launcher, Start-Toolkit.ps1, Launch-Toolkit.cmd, README.md, LICENSE, CHANGELOG.md -Destination dist/$out -Recurse
+          Compress-Archive -Path dist/$out -DestinationPath "dist/$out.zip"
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${{ github.ref_name }}" "dist/ADDnsToolkit-${{ github.ref_name }}.zip" --title "AD & DNS Toolkit ${{ github.ref_name }}" --notes-file CHANGELOG.md

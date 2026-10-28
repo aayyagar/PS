@@ -1,121 +1,27 @@
-﻿<#
-==================================================================================
-Title        : Create DNS Records Script
-Module       : Create-DNSRecord.ps1
-Author       : Akhilesh Ayyagari
-Copyright    : © 2024 Akhilesh Ayyagari. All rights reserved.
-Description  : 
-    This script allows you to create DNS records (A, CNAME, PTR) 
-    interactively or from a CSV file.
-
-License      : This script is the intellectual property of Akhilesh Ayyagari.
-               Unauthorized copying, distribution, or modification is prohibited.
-==================================================================================
+<#
+.SYNOPSIS
+    Create DNS records interactively or from a CSV (v1 script name, kept for compatibility).
+.DESCRIPTION
+    Since v2 this runs Add-ADTDnsRecord / Import-ADTDnsRecord from the ADDnsToolkit module. Same job, but safer: everything is
+    validated and previewed before anything changes. See README.md for all options, the
+    console menu (Start-Toolkit.ps1 -Console) and the GUI (Launch-Toolkit.cmd).
+.NOTES
+    Copyright (c) 2024-2026 Akhilesh Ayyagari. MIT License.
 #>
-
-# ==================================================================================
-# Step 1: Import Required Module
-# ==================================================================================
-try {
-    Import-Module DNSServer -ErrorAction Stop
-    Write-Host "`n✅ DNS Server module loaded successfully." -ForegroundColor Green
+[CmdletBinding()]
+param([string]$CsvPath, [string]$ComputerName)
+$ErrorActionPreference = 'Stop'
+Import-Module (Join-Path $PSScriptRoot '../ADDnsToolkit/ADDnsToolkit.psd1') -Force
+$tk = Get-Module ADDnsToolkit
+if (-not $CsvPath) {
+    $mode = Read-Host 'Create one record interactively or import a CSV? (Interactive/CSV)'
+    if ($mode -match '^c') { $CsvPath = Read-Host 'CSV file' }
 }
-catch {
-    Write-Host "`n❌ Failed to load DNS Server module. Exiting." -ForegroundColor Red
-    exit
-}
-
-# ==================================================================================
-# Step 2: Ask for Input Mode
-# ==================================================================================
-$inputMode = Read-Host "`n❓ How do you want to create DNS records? (Interactive/CSV)"
-
-if ($inputMode -match '^(CSV|csv)$') {
-    # ==================================================================================
-    # Step 3A: CSV Mode
-    # ==================================================================================
-    $csvPath = Read-Host "📄 Please enter the full path to your CSV file"
-
-    if (!(Test-Path $csvPath)) {
-        Write-Host "`n❌ CSV file not found. Exiting..." -ForegroundColor Red
-        exit
-    }
-
-    try {
-        $records = Import-Csv -Path $csvPath
-        Write-Host "`n✅ Successfully imported $($records.Count) records from CSV." -ForegroundColor Green
-    }
-    catch {
-        Write-Host "`n❌ Failed to import CSV. Exiting..." -ForegroundColor Red
-        exit
-    }
-
-    foreach ($record in $records) {
-        try {
-            if ($record.RecordType -eq "A") {
-                Add-DnsServerResourceRecordA -Name $record.Name -ZoneName $record.ZoneName -IPv4Address $record.IPAddress
-            }
-            elseif ($record.RecordType -eq "CNAME") {
-                Add-DnsServerResourceRecordCName -Name $record.Name -ZoneName $record.ZoneName -HostNameAlias $record.AliasTarget
-            }
-            elseif ($record.RecordType -eq "PTR") {
-                Add-DnsServerResourceRecordPtr -Name $record.Name -ZoneName $record.ZoneName -PtrDomainName $record.PtrTarget
-            }
-            Write-Host "✅ Created $($record.RecordType) record: $($record.Name)" -ForegroundColor Green
-        }
-        catch {
-            Write-Host "❌ Failed to create $($record.RecordType) record: $($record.Name) - $_" -ForegroundColor Red
-        }
-    }
-}
-elseif ($inputMode -match '^(Interactive|interactive)$') {
-    # ==================================================================================
-    # Step 3B: Interactive Mode
-    # ==================================================================================
-    $recordType = Read-Host "`n❓ What type of record do you want to create? (A/CNAME/PTR)"
-
-    switch ($recordType.ToUpper()) {
-        "A" {
-            $zoneName = Read-Host "Zone Name (example: yourdomain.com)"
-            $recordName = Read-Host "Record Name (example: server01)"
-            $ipAddress = Read-Host "IPv4 Address (example: 192.168.1.10)"
-            try {
-                Add-DnsServerResourceRecordA -Name $recordName -ZoneName $zoneName -IPv4Address $ipAddress
-                Write-Host "✅ A Record created: $recordName -> $ipAddress" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to create A record - $_" -ForegroundColor Red
-            }
-        }
-        "CNAME" {
-            $zoneName = Read-Host "Zone Name (example: yourdomain.com)"
-            $aliasName = Read-Host "Alias Name (example: web)"
-            $aliasTarget = Read-Host "Alias Target FQDN (example: server01.yourdomain.com)"
-            try {
-                Add-DnsServerResourceRecordCName -Name $aliasName -ZoneName $zoneName -HostNameAlias $aliasTarget
-                Write-Host "✅ CNAME Record created: $aliasName -> $aliasTarget" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to create CNAME record - $_" -ForegroundColor Red
-            }
-        }
-        "PTR" {
-            $zoneName = Read-Host "Reverse Lookup Zone Name (example: 1.168.192.in-addr.arpa)"
-            $ptrName = Read-Host "Record Name (last octet of IP, example: 10)"
-            $ptrTarget = Read-Host "PTR Target FQDN (example: server01.yourdomain.com)"
-            try {
-                Add-DnsServerResourceRecordPtr -Name $ptrName -ZoneName $zoneName -PtrDomainName $ptrTarget
-                Write-Host "✅ PTR Record created: $ptrName -> $ptrTarget" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to create PTR record - $_" -ForegroundColor Red
-            }
-        }
-        default {
-            Write-Host "❌ Invalid record type selected." -ForegroundColor Red
-        }
-    }
+if ($CsvPath) {
+    $prm = @{ CsvPath = $CsvPath; ComputerName = $ComputerName }
+    & $tk { param($p) Invoke-ADTPreviewThenApply -Command 'Import-ADTDnsRecord' -Parameters $p -Columns @('ZoneName', 'HostName', 'RecordType', 'Data', 'Action', 'Detail') } $prm
 }
 else {
-    Write-Host "`n❌ Invalid input mode. Exiting script..." -ForegroundColor Red
+    $prm = @{ ComputerName = $ComputerName; ZoneName = (Read-Host 'Zone (example: yourdomain.com)'); Type = (Read-Host 'Type (A, AAAA, CNAME, MX, TXT, PTR)').ToUpper(); Name = (Read-Host 'Name (example: server01)'); Data = (Read-Host 'Data (IP address or target name)') }
+    Add-ADTDnsRecord @prm -Confirm:$false | Format-List
 }

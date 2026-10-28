@@ -1,21 +1,11 @@
-<<<<<<< HEAD
-﻿{
+{
     "files.trimTrailingWhitespace": true,
+    "files.encoding": "utf8",
     "editor.tabSize": 4,
     "editor.insertSpaces": true,
     "editor.formatOnSave": true,
     "powershell.codeFormatting.autoCorrectAliases": true,
     "powershell.codeFormatting.useCorrectCasing": true,
-    "powershell.codeFormatting.whitespaceAroundOperators": true
+    "powershell.codeFormatting.whitespaceAroundOperators": true,
+    "powershell.scriptAnalysis.settingsPath": "PSScriptAnalyzerSettings.psd1"
 }
-=======
-﻿{
-    "files.trimTrailingWhitespace": true,
-    "editor.tabSize": 4,
-    "editor.insertSpaces": true,
-    "editor.formatOnSave": true,
-    "powershell.codeFormatting.autoCorrectAliases": true,
-    "powershell.codeFormatting.useCorrectCasing": true,
-    "powershell.codeFormatting.whitespaceAroundOperators": true
-}
->>>>>>> e3d084237f79311b5a87dd29bbefb9fbf09b3a4d
