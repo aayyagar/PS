@@ -422,12 +422,12 @@ function Show-ADTGuiPage {
         switch ($Key) {
             'Home' { Invoke-ADTGuiHomeCheck }
             'Log' { Update-ADTGuiLogPage }
-            { $_ -in 'DnsRecords', 'DnsHealth', 'DnsBackup', 'StaleDns', 'Forwarders' } { Initialize-ADTGuiDnsServers }
+            { $_ -in 'DnsRecords', 'DnsHealth', 'DnsBackup', 'StaleDns', 'Forwarders' } { Initialize-ADTGuiDnsServer }
         }
     }
 }
 
-function Initialize-ADTGuiDnsServers {
+function Initialize-ADTGuiDnsServer {
     <# Fills every DNS page's server box once, from the DCs and this computer's DNS settings. #>
     $g = $script:ADTGui
     if ($g.DnsServers) { return }
@@ -497,7 +497,7 @@ function Set-ADTGuiTheme {
 # ----------------------------------------------------------------------------------
 # Pages
 # ----------------------------------------------------------------------------------
-function Initialize-ADTGuiPages {
+function Initialize-ADTGuiPage {
     # HOME -----------------------------------------------------------------------
     $p = New-ADTGuiPage 'Home' 'AD & DNS Toolkit' 'Free, open-source tools for Active Directory and DNS administration. Read-only by default: every change is previewed and confirmed first.'
     $null = Add-ADTGuiButton $p 'Check this computer' { Invoke-ADTGuiHomeCheck } -Kind Primary
@@ -599,7 +599,7 @@ function Initialize-ADTGuiPages {
         if ($pw) { $prm.Password = ConvertTo-SecureString $pw -AsPlainText -Force }
         if (-not $Preview -and -not (Confirm-ADTGui "Create the missing objects from`n$path`nin Active Directory?`n`nTip: run Preview first.")) { return }
         Start-ADTGuiJob -Title $(if ($Preview) { 'Restore preview' } else { 'Restoring AD objects' }) -Parameters $prm -Script {
-            param($Path, $Include, $Server, $Preview, $Enable, $Password)
+            param($Path, $Include, $Server, $Preview, $Enable, [securestring]$Password)
             $a = @{ Path = $Path; Include = $Include; Server = $Server }
             if ($Password) { $a['InitialPassword'] = $Password; $a['EnableUsers'] = $Enable }
             if ($Preview) { Restore-ADTObject @a -WhatIf } else { Restore-ADTObject @a -Confirm:$false }
@@ -990,7 +990,7 @@ function Show-ADTGui {
     $form.Controls.Add($strip)
     $form.Controls.Add($nav)
 
-    Initialize-ADTGuiPages
+    Initialize-ADTGuiPage
 
     $timer = New-Object System.Windows.Forms.Timer
     $timer.Interval = 250

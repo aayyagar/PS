@@ -12,5 +12,4 @@
 param([string]$Server, [switch]$IncludeComputers)
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '../ADDnsToolkit/ADDnsToolkit.psd1') -Force
-$tk = Get-Module ADDnsToolkit
 Backup-ADTObject -Server $Server -IncludeComputers:$IncludeComputers | Format-List OutputFolder, OUs, Groups, Users, Computers

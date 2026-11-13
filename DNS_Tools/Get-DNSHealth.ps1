@@ -12,7 +12,6 @@
 param([string]$ComputerName)
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '../ADDnsToolkit/ADDnsToolkit.psd1') -Force
-$tk = Get-Module ADDnsToolkit
 $r = Test-ADTDnsHealth -ComputerName $ComputerName
 $r.Checks | Where-Object Status -ne 'Pass' | Format-Table Status, Category, Check, Target, Detail -AutoSize -Wrap | Out-String -Width 200 | Write-Host
 if ($r.ReportPath) { Invoke-Item $r.ReportPath }

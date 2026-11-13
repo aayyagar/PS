@@ -10,8 +10,9 @@ function Get-ADTCloudProvider {
     #>
     [CmdletBinding()]
     param([int]$TimeoutSec = 2)
-    $imds = 'http://169.254.169.254'
-    if (-not (Test-ADTTcpPort -ComputerName '169.254.169.254' -Port 80 -TimeoutMs 700)) { return 'On-premises' }
+    $imdsHost = '169.254.169.254'   # link-local instance metadata address used by Azure, AWS and Google Cloud
+    $imds = "http://$imdsHost"
+    if (-not (Test-ADTTcpPort -ComputerName $imdsHost -Port 80 -TimeoutMs 700)) { return 'On-premises' }
     try { if (Invoke-RestMethod -Uri "$imds/metadata/instance?api-version=2021-02-01" -Headers @{ Metadata = 'true' } -TimeoutSec $TimeoutSec -ErrorAction Stop) { return 'Azure' } } catch { Write-Verbose 'Not Azure' }
     try {
         # AWS IMDSv2 needs a session token first; fall back to IMDSv1.

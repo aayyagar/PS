@@ -12,5 +12,4 @@
 param([string]$ComputerName)
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '../ADDnsToolkit/ADDnsToolkit.psd1') -Force
-$tk = Get-Module ADDnsToolkit
 Backup-ADTDnsZone -ComputerName $ComputerName | Format-Table ZoneName, Records, ZoneFile, Status, Detail -AutoSize

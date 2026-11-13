@@ -12,7 +12,6 @@
 param([string]$Server, [int]$StaleDays = 90)
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot '../ADDnsToolkit/ADDnsToolkit.psd1') -Force
-$tk = Get-Module ADDnsToolkit
 $r = Get-ADTInventory -Server $Server -StaleDays $StaleDays
 $r.Summary | Format-List | Out-String -Width 200 | Write-Host
 if ($r.ReportPath) { Invoke-Item $r.ReportPath }

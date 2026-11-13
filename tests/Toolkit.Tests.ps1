@@ -40,7 +40,7 @@ BeforeAll {
         $global:FakeGroups
     }
     function global:Get-ADGroupMember { [CmdletBinding()] param($Identity, [switch]$Recursive, $Server) @() }
-    function global:New-ADUser { [CmdletBinding()] param($Name, $SamAccountName, $UserPrincipalName, $Path, $AccountPassword, $Enabled, $ChangePasswordAtLogon, $GivenName, $Surname, $DisplayName, $Department, $Title, $Company, $Office, $Description, $EmailAddress, $Manager, [switch]$PassThru, $Server) $global:Created.Add("User:$SamAccountName"); if ($PassThru) { [pscustomobject]@{ SamAccountName = $SamAccountName } } }
+    function global:New-ADUser { [CmdletBinding()] param($Name, $SamAccountName, $UserPrincipalName, $Path, [securestring]$AccountPassword, [bool]$Enabled, [bool]$ChangePasswordAtLogon, $GivenName, $Surname, $DisplayName, $Department, $Title, $Company, $Office, $Description, $EmailAddress, $Manager, [switch]$PassThru, $Server) $global:Created.Add("User:$SamAccountName"); if ($PassThru) { [pscustomobject]@{ SamAccountName = $SamAccountName } } }
     function global:New-ADGroup { [CmdletBinding()] param($Name, $SamAccountName, $GroupScope, $GroupCategory, $Path, $Description, $Server) $global:Created.Add("Group:$SamAccountName") }
     function global:New-ADOrganizationalUnit { [CmdletBinding()] param($Name, $Path, $Description, $ProtectedFromAccidentalDeletion, $Server) $global:Created.Add("OU:$Name,$Path") }
     function global:Add-ADGroupMember { [CmdletBinding()] param($Identity, $Members, $Server) $global:Created.Add('Member') }
